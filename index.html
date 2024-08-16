@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xp.css/dist/XP.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Tahoma, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        #wrapper {
+            width: 100%;
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        #timer {
+            padding: 10px;
+            background-color: #444;
+            color: #e0e0e0;
+            font-size: 20px;
+            display: none;
+            border: 2px solid #000;
+        }
+        #paraContainer, #textArea {
+            display: none;
+            margin: 20px;
+            padding: 10px;
+            width: 100%;
+            max-width: 550px;
+            height: 200px;
+            overflow-y: auto;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 2px solid #000;
+        }
+        #textArea {
+            height: 150px;
+            resize: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 2px solid #000;
+        }
+        .modalBox {
+            background: #444;
+            color: #e0e0e0;
+            padding: 20px;
+            border: 2px solid #000;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        #startWindow, #newTestWindow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+        #newTestWindow {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="startWindow">
+    <div class="modalBox">
+        <h1>Typing Test</h1>
+        <p>Test your typing speed in 60 seconds! Start typing to begin the timer.</p>
+        <button id="startButton" class="button">Start Test</button>
+    </div>
+</div>
+
+<div id="timer">Time Remaining: 60s</div>
+
+<div id="wrapper">
+    <div id="paraContainer">
+        <p id="testPara"></p>
+    </div>
+    <textarea id="textArea" placeholder="Start typing to begin the test..." onpaste="return false"></textarea>
+</div>
+
+<div id="newTestWindow">
+    <div class="modalBox">
+        <h1>Time's Up!</h1>
+        <p id="finalScore"></p>
+        <button id="newTestButton" class="button">Try Again</button>
+    </div>
+</div>
+
+<script>
+const passage1 = "In the peaceful waters of the river, the otter swims with grace and agility. Her sleek fur glistens under the morning sun as she dives, emerging with a fish clasped firmly in her teeth. Otters are known for their playful nature, often seen sliding down muddy banks or chasing each other in the water. But beyond their fun-loving exterior, they are also highly skilled hunters, using their sharp claws and keen eyesight to catch prey. A family of otters, called a raft, can often be seen resting together, holding hands to stay connected as they float in the current. This bond is essential for their survival, as it helps maintain warmth and ensures the young remain safe."
+const passage2 = "The riverbank is alive with the sound of splashing as a group of young otters learns to swim. Under the watchful eye of their mother, they take their first tentative steps into the water. The smallest, still unsure, hesitates at the edge, but with a gentle nudge, he joins his siblings. These early lessons are crucial, as an otter's life is intertwined with the water. From hunting to playing, the water is both a source of nourishment and a playground. As the young otters grow, they will learn to navigate the currents, dive for fish, and eventually, teach their own offspring the same skills."
+const passage3 = "A solitary otter moves silently along the river’s edge, her senses alert. She pauses, ears twitching, as she picks up the faint sound of a distant predator. Otters are often preyed upon by larger animals, so they must remain vigilant. Despite their small size, otters are fierce defenders of their territory, using sharp teeth and powerful jaws to fend off threats. Their agility in water gives them an advantage, allowing them to escape quickly if needed. This combination of playfulness and caution is what enables otters to thrive in their aquatic environments, always balancing fun with the necessity of survival."
+const passage4 = "At dusk, the river glows with the fading light of day, and the otters begin their evening rituals. They gather along the bank, grooming each other’s fur to remove dirt and debris. This grooming not only keeps them clean but also strengthens social bonds within the group. As they finish, the otters slip back into the water, their sleek bodies cutting through the surface with barely a ripple. Nighttime is a busy period for otters, as they hunt for fish and crustaceans. Their nocturnal activities are often hidden from human eyes, but for the otters, it is a time of energy and excitement."
+const passage5 = "In a quiet cove, away from the main river, an otter carefully builds her den. Using reeds and branches, she creates a shelter that will keep her young safe and dry. Otters are meticulous builders, often improving their dens over time to make them more comfortable. Inside, the den is cozy, lined with soft grasses where the young otters will spend their first weeks of life. As the mother otter finishes her work, she takes a moment to rest, knowing that soon she will have to care for a new generation, teaching them the ways of the river and the skills they need to survive."
+
+    let timer = document.getElementById("timer");
+    let timeRemaining = 60;
+    let testPara = document.getElementById("testPara");
+    let textArea = document.getElementById("textArea");
+    let startWindow = document.getElementById("startWindow");
+    let startButton = document.getElementById("startButton");
+    let newTestWindow = document.getElementById("newTestWindow");
+    let newTestButton = document.getElementById("newTestButton");
+    let score = 0;
+
+    const calculateScore = () => {
+        let paraSubmitted = textArea.value.trim();
+        let wordCount = paraSubmitted ? paraSubmitted.split(/\s+/).length : 0;
+        return wordCount;
+    };
+
+    const generatePassage = () => {
+        const passages = [passage1, passage2, passage3, passage4, passage5];
+        testPara.innerHTML = passages[Math.floor(Math.random() * passages.length)];
+        document.getElementById('paraContainer').style.display = "block";
+        textArea.style.display = "block";
+    };
+
+    const displayTime = () => {
+        let interval = setInterval(() => {
+            timeRemaining--;
+            timer.textContent = `Time Remaining: ${timeRemaining}s`;
+            if (timeRemaining <= 0) {
+                clearInterval(interval);
+                document.body.removeChild(document.getElementById('wrapper'));
+                timer.style.display = "none";
+                document.getElementById("finalScore").textContent = `Your speed: ${calculateScore()} words per minute.`;
+                newTestWindow.style.display = "flex";
+            }
+        }, 1000);
+    };
+
+    const startTest = () => {
+        startWindow.style.display = "none";
+        timer.style.display = "block";
+        displayTime();
+        generatePassage();
+    };
+
+    startButton.addEventListener("click", startTest);
+    newTestButton.addEventListener("click", () => location.reload());
+
+</script>
+
+</body>
+</html>
